@@ -1,0 +1,27 @@
+img{
+    width: 200px;
+    height: 100px;
+}
+
+.videos{
+    display: flex;
+    flex-wrap: wrap;
+    width: 98%;
+    height: 90vh;
+    text-align: left;
+    
+}
+
+.title{
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+
+}
+
+.video{
+    margin-left: 50px;
+    height: 200px;
+    width: 200px;
+
+}

@@ -25,3 +25,58 @@ img{
     width: 200px;
 
 }
+
+.videoRendering{
+    height: 50%;
+    width: 60%;
+    margin-top: 5%;
+
+}
+
+.interactions{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2%;
+}
+
+.like, .dislike{
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    font-size: 30px;
+    margin-bottom: 50px;
+}
+
+.comments{
+    margin: 10px;
+    border: black 2px solid;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.comment{
+    border: black 2px solid;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+
+
+
+
+.video-container {
+    position: relative;
+    padding-bottom: 47.25%; /* 16:9 aspect ratio (change as needed) */
+    height: 0;
+    overflow: hidden;
+}
+
+/* Style the video to fill the container */
+.video-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}

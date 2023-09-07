@@ -4,19 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/styles.css">
     <title>Itube</title>
 </head>
 <body>
     <div class="navbar">
-        <button class="btn btn-primary" style="margin-left: 10%;">Home</button>
-        <button class="btn btn-primary">Login</button>
-        <button class="btn btn-primary" style="margin-right: 10%;">Logout</button>
+        <a class="btn btn-primary" style="margin-left: 10%;">Home</a>
+        <a class="btn btn-primary">Login</a>
+        <a class="btn btn-primary" href="/upload">Upload</a>
+        <a class="btn btn-primary" style="margin-right: 10%;">Logout</a>
 
     </div>
 
-    <video class="video" controls muted="muted" autoplay>
-        <source type="video/mp4" src="/video?id=<%= id %>">
-    </video>
+    <!-- <div class="videoHeadDiv justify-content-center d-flex">
+        <video class="videoRendering" controls muted="muted" autoplay>
+            <source type="video/mp4" src="/video?id=<%= id %>">
+        </video>
+
+
+
+    </div> -->
+
+    <div class="video-container">
+        <video controls autoplay muted="muted">
+            <source src="/video?id=<%= id %>" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+
+    <div class="interactions">
+        <div class="like">
+            <a>Like 123</a>
+    
+        </div>
+    
+        <div class="dislike">
+            <a>Dislike 42</a>
+    
+        </div>
+    
+    </div>
+    
+    <div class="comments">
+        <div class="comment">
+            <h3 class="name">yousifsaif</h3>
+            <h4 class="text">This Video Is Very Greate!!</h4>
+            
+        </div>
+
+        <div class="comment">
+            <h3 class="name">yousifsaif</h3>
+            <h4 class="text">This Video Is Very Greate!!</h4>
+            
+        </div>
+
+        <div class="comment">
+            <h3 class="name">yousifsaif</h3>
+            <h4 class="text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita exercitationem quidem distinctio eaque nisi laborum debitis quia sint in temporibus, ut rerum consequatur dolore quibusdam cumque voluptas veniam fugit repellat.</h4>
+            
+        </div>
+        
+    </div>
+    
 <!-- 
     <script>
         const video = document.querySelector(".video")

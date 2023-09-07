@@ -2,6 +2,8 @@ const express = require("express")
 const mongoose = require("mongoose")
 const fs = require("fs")
 const app = express()
+const cors = require("cors")
+const multer = require("multer")
 
 const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
 
@@ -12,7 +14,7 @@ mongoose.connect(dbURI)
     console.log("Error: ", err)
 })
 
-
+app.use(cors())
 app.set("view engine", "ejs")
 app.use(express.static("public"))
 

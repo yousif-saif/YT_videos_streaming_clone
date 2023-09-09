@@ -1,5 +1,16 @@
-const fs = require("fs")
+// var p1 = Promise.resolve(3);
+// var p2 = 1337;
+const res = async () => {
+    var p3 = await new Promise((resolve, reject) => {
+      setTimeout(resolve, 100, "foo");
+    }); 
 
-const stream = fs.createReadStream(__dirname + "/public/videos/1.mp4")
+    return p3
 
-console.log(stream.le)
+}
+
+console.log(res())
+// Promise.all([p1, p2, p3]).then(values => { 
+//   console.log(values); // [3, 1337, "foo"] 
+// });
+

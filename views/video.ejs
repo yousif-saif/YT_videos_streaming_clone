@@ -16,14 +16,6 @@
 
     </div>
 
-    <!-- <div class="videoHeadDiv justify-content-center d-flex">
-        <video class="videoRendering" controls muted="muted" autoplay>
-            <source type="video/mp4" src="/video?id=<%= id %>">
-        </video>
-
-
-
-    </div> -->
 
     <div class="video-container">
         <video controls autoplay muted="muted">
@@ -31,7 +23,6 @@
             Your browser does not support the video tag.
         </video>
     </div>
-
 
     <div class="interactions">
         <div class="like">
@@ -67,29 +58,6 @@
         
     </div>
     
-<!-- 
-    <script>
-        const video = document.querySelector(".video")
-
-        fetch("/stream?id=<%= id %>", {
-            method: "post"
-        })
-        .then(response => {
-            if (response.ok){
-                return response.text()
-
-            }else{
-                console.log("OMG HELL NAHHH")
-            }
-
-        })
-        .then(videoURL => {
-            video.src = videoURL
-
-        })
-
-
-    </script> -->
 
 </body>
 </html>

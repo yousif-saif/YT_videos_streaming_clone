@@ -3,21 +3,36 @@ const mongoose = require("mongoose")
 const fs = require("fs")
 const app = express()
 const cors = require("cors")
+const Video = require("./models/videos")
 const multer = require("multer")
-const { compressVideo } = require("./compress_video_with_ffmpeg")
+const { compressVideo, saveVideoToDatabase, updateFilesPaths } = require("./compress_video_with_ffmpeg")
 
-// const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
+const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
 
-// mongoose.connect(dbURI)
-// .then((results) => console.log("connected to MongoDB successfully!"))
+mongoose.connect(dbURI)
+.then((results) => console.log("connected to MongoDB successfully!"))
 
-// .catch((err) => {
-//     console.log("Error: ", err)
-// })
+.catch((err) => {
+    console.log("Error: ", err)
+})
 
 app.use(cors())
 app.set("view engine", "ejs")
 app.use(express.static("public"))
+
+
+async function getAllVideos() {
+    try {
+        const videos = await Video.find({})
+        return videos
+
+    } catch (error) {
+        console.error("Error retrieving videos:", error)
+
+    }
+}
+
+
 
 
 const storage = multer.diskStorage({
@@ -44,8 +59,6 @@ const storage = multer.diskStorage({
     },
 
     destination: function (req, file, callback) {
-        // console.log(__dirname + "/public/" + imageOrVideo)
-        // console.log("imageOrVideo: ", imageOrVideo)
         callback(null, __dirname + "/public/")
 
     }
@@ -58,13 +71,15 @@ const files = multer({storage: storage})
 app.listen(8000, () => console.log("Server is listing on port 8000..."))
 
 app.get("/", (req, res) => {
-    const videos = [
-        {id: 1, title: "this is the first!", img: "1.jpg"},
-        {id: 2, title: "this is the second!", img: "2.jpg"},
-        {id: 3, title: "this is the third!", img: "3.jpg"}
-    ]
+    getAllVideos()
+    .then((videos) => {
+        res.render("index.ejs", { videos })
 
-    res.render("index.ejs", { videos })
+    })
+    .catch((error) => {
+        console.error("Error:", error)
+
+    })
     
 })
 
@@ -81,52 +96,117 @@ app.get("/video", (req, res) => {
     }
     
     const id = req.query.id
+    
+    Video.findById(id)
+    .then((video) => {
+        if (video == null || video == {}){
+            return res.json({error: "Video is not found"})
+        }
+        const videoPath = video.videoFilePath
 
-    // const videoPath = __dirname + "/public/videos/" + id + ".mp4"
-    const videoPath = __dirname + "/public/videos/video_2023-08-29_16-37-26.mp4.mp4"
-    const videoSize = fs.statSync(videoPath).size
+        const videoSize = fs.statSync(videoPath).size
 
-    const CHUNK_SIZE = 10 ** 6 // 1MB
-    const start = Number(range.replace(/\D/g, ""))
-    const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
-  
-    // Create headers
-    const contentLength = end - start + 1
-    const headers = {
-      "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": contentLength,
-      "Content-Type": "video/mp4",
-    }
-  
-    res.writeHead(206, headers)
-  
-    const videoStream = fs.createReadStream(videoPath, { start, end })
-  
-    videoStream.pipe(res)
+        const CHUNK_SIZE = 10 ** 6 // 1MB
+        const start = Number(range.replace(/\D/g, ""))
+        const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+      
+        // Create headers
+        const contentLength = end - start + 1
+        const headers = {
+          "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": contentLength,
+          "Content-Type": "video/mp4",
+        }
+      
+        res.writeHead(206, headers)
+      
+        const videoStream = fs.createReadStream(videoPath, { start, end })
+      
+        videoStream.pipe(res)
+
+    })
+    .catch(err => {
+        console.log("ERROR ON GETING VIDEO FILE PATH", err)
+    })
+
+
 })
 
 
 app.get("/upload", (req, res) => {
-    res.render("upload.ejs")
+    res.render("upload")
 
 })
 
-
 app.post("/upload", files.array("files"), function (req, res) {
-    // console.log(req.body)
-    // console.log(req.files)
+    const title = req.body.title
+
+    if (title == "" || title == null) {
+        console.log("error in the title")
+        return res.json({error: "Title is required"})
+
+    }
+
+    if (req.files.length <= 1){
+        console.log("error in the length")
+        return res.json({error: "Please provide both video and a thumbnail"})
+
+    }
+
+    let thumbnail = ""
+    let video = ""
+
+    if (req.files[0].mimetype.indexOf("video") != -1){
+        video = req.files[0]
+        thumbnail = req.files[1]
+
+    }else{
+        video = req.files[1]
+        thumbnail = req.files[0]
+
+    }
+
+
+    const videoName = video.originalname
+    const imageName = thumbnail.originalname
+
+    const imageExtention = imageName.substring(imageName.lastIndexOf("."))
+
+    const savePath = __dirname + "\\public\\videos\\" + videoName
 
     const compressionPromises = req.files.map(async (file) => {
         if (file.mimetype.indexOf("video") != -1){
-            if (file.size > 10 ** 6){
-                return compressVideo(file.path, __dirname + "\\public\\videos\\" + file.originalname)
+            if (video.size > 10 ** 6){
+                return compressVideo(video.path, savePath, title, thumbnail.path, imageName, imageExtention)
     
+            }else{
+                saveVideoToDatabase(title, savePath + ".mp4", thumbnail.path)
+                .then((videoId) => {
+                    fs.rename(video.path, savePath + videoId + ".mp4", (err) => {
+                        if (err){
+                            console.log("ERROR WHILE RENAMING LESS THAN 1MB", err)
+                            return res.json({error: "There was an error while uploading your video"})
+
+                        }
+    
+                    })
+                    fs.rename(thumbnail.path, __dirname + "\\public\\images\\" + imageName + videoId + imageExtention, (err) => {
+                        if (err){
+                            console.log("ERROR WHILE RENAMING LESS THAN 1MB", err)
+                            return res.json({error: "There was an error while uploading your video"})
+
+                        }
+                    })
+
+                    updateFilesPaths(savePath + videoId + ".mp4", imageName + videoId + imageExtention, videoId)
+    
+                })
+                
+                return null
             }
-
+    
         }
-
-        return null
         
     })
 
@@ -142,7 +222,7 @@ app.post("/upload", files.array("files"), function (req, res) {
 
 })
 
-
+// sample data
 // {
 //     fieldname: 'files',
 //     originalname: 'Untitled Project.mp4',
@@ -153,3 +233,4 @@ app.post("/upload", files.array("files"), function (req, res) {
 //     path: 'C:\\Users\\msi\\Desktop\\express project\\public\\videos\\Untitled Project.mp4',
 //     size: 25131139
 //   },
+

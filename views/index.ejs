@@ -21,7 +21,7 @@
         <% if (videos.length > 0) { %>
             <% videos.forEach((video) => { %>
                 <div class="video">
-                    <a href="/watch?v=<%= video.id %>"><img src="/images/<%= video.img %>" alt="image"></a>
+                    <a href="/watch?v=<%= video.id %>"><img src="/images/<%= video.thumbnailPath %>" alt="image"></a>
                     <h3 class="title"><%= video.title %></h3>
 
                 </div>

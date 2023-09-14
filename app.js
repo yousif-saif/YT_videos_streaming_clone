@@ -19,6 +19,7 @@ mongoose.connect(dbURI)
 app.use(cors())
 app.set("view engine", "ejs")
 app.use(express.static("public"))
+app.use(express.json())
 
 
 async function getAllVideos() {
@@ -86,13 +87,27 @@ app.get("/", (req, res) => {
 app.get("/watch", (req, res) => {
     const id = req.query.v
 
-    res.render("video.ejs", { id })
+    if (id.length > 24 || id.length < 24){
+        return res.redirect("/video_not_found")
+
+    }
+
+    Video.findById(id)
+    .then(video => {
+        if (!fs.existsSync(video.videoFilePath)) {
+            return res.redirect("/video_not_found")
+
+        }else {
+            res.render("video.ejs", { id, likes: video.likes, dislikes: video.dislikes})
+
+        }
+    })
 
 })
 app.get("/video", (req, res) => {
     const range = req.headers.range
     if (!range) {
-      res.status(400).send("Requires Range header")
+        res.status(400).send("Requires Range header")
     }
     
     const id = req.query.id
@@ -102,6 +117,7 @@ app.get("/video", (req, res) => {
         if (video == null || video == {}){
             return res.json({error: "Video is not found"})
         }
+
         const videoPath = video.videoFilePath
 
         const videoSize = fs.statSync(videoPath).size
@@ -221,6 +237,55 @@ app.post("/upload", files.array("files"), function (req, res) {
     res.json({status: "files recevied"})
 
 })
+
+app.get("/video_not_found", (req, res) => {
+    res.render("video_not_found.ejs")
+})
+
+
+app.get("/like", (req, res) => {
+    const id = req.query.id
+
+    async function update(){
+        await Video.updateOne({ _id: id }, { $inc: {likes: 1} })
+
+    }
+
+    update()
+    .then(() => {
+        res.json({ code: 200 })
+
+    })
+    .catch(error => {
+        console.log(error)
+
+    })
+
+
+})
+
+
+app.get("/dislike", (req, res) => {
+    const id = req.query.id
+
+    async function update(){
+        await Video.updateOne({ _id: id }, { $inc: {dislikes: 1} })
+
+    }
+
+    update()
+    .then(() => {
+        res.json({ code: 200 })
+
+    })
+    .catch(error => {
+        console.log(error)
+
+    })
+
+
+})
+
 
 // sample data
 // {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <title>login</title>
+</head>
+<body>
+
+    <%- include('nav_bar') %>
+    
+    <div class="text-center">
+        <h1 style="font-family: sans-serif; margin-top: 10%;">Log in</h1>
+
+    </div>
+
+    <!-- <form action="/login" method="post" id="form"> -->
+    <div class="justify-content-center d-flex mt-3">
+        <div class="row col-md-3">
+            <input type="text" placeholder="Name" class="form-control" name="name" id="name">
+            <input type="email" placeholder="Email" class="form-control mt-3" name="email" id="email">
+            <input type="password" placeholder="Password" class="form-control mt-3" name="password" id="password">
+
+        </div>
+        
+    </div>
+    
+    <div class="text-center mt-4">
+        <h6>Don't Have An Account? <a href="/sign_up">Sign Up</a></h6>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-primary col-md-3" id="loginButton">Log In</button>
+        <h4 class="text-danger mt-4 errorMsg"></h4>
+
+    </div>
+
+    <!-- </form> -->
+
+    <script src="/js/login.js"></script>
+    
+</body>
+</html>

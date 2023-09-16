@@ -11,6 +11,8 @@
 
     <%- include('nav_bar') %>
 
+    <h1><%= isLogedIn %></h1>
+
     <div class="videos justify-content-center d-flex mt-5">
         <% if (videos.length > 0) { %>
             <% videos.forEach((video) => { %>

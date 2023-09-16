@@ -9,9 +9,12 @@
 <body>
     <div class="navbar">
         <a class="btn btn-primary" style="margin-left: 10%;" href="/">Home</a>
-        <a class="btn btn-primary">Login</a>
+        <% if (!isLogedIn){ %>
+            <a class="btn btn-primary" href="/login">Login</a>
+
+        <% } %>
         <a class="btn btn-primary" href="/upload">Upload</a>
-        <a class="btn btn-primary" style="margin-right: 10%;">Logout</a>
+        <a class="btn btn-primary" style="margin-right: 10%;" href="/logout">Logout</a>
 
     </div>
     

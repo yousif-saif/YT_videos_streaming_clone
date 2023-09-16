@@ -4,7 +4,9 @@ const fs = require("fs")
 const app = express()
 const cors = require("cors")
 const Video = require("./models/videos")
+const User = require("./models/users")
 const multer = require("multer")
+const session = require("express-session")
 const { compressVideo, saveVideoToDatabase, updateFilesPaths } = require("./compress_video_with_ffmpeg")
 
 const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
@@ -16,7 +18,15 @@ mongoose.connect(dbURI)
     console.log("Error: ", err)
 })
 
+
+app.use(session({
+    secret: "fdjFDj235:fjrFSE756ksAgbvXsri08[-",
+    resave: false,
+    saveUninitialized: true,
+}))
+  
 app.use(cors())
+app.use(express.urlencoded({ extended: true }))
 app.set("view engine", "ejs")
 app.use(express.static("public"))
 app.use(express.json())
@@ -74,7 +84,7 @@ app.listen(8000, () => console.log("Server is listing on port 8000..."))
 app.get("/", (req, res) => {
     getAllVideos()
     .then((videos) => {
-        res.render("index.ejs", { videos })
+        res.render("index.ejs", { videos, isLogedIn: req.session.isLogin })
 
     })
     .catch((error) => {
@@ -82,6 +92,75 @@ app.get("/", (req, res) => {
 
     })
     
+})
+
+app.get("/login", (req, res) => {
+    res.render("login.ejs", { isLogedIn: req.session.isLogin })
+
+})
+
+app.get("/sign_up", (req, res) => {
+    res.render("sign_up.ejs")
+    
+})
+
+
+app.post("/login", (req, res) => {
+    const { name, email, password } = req.body
+
+    if (name == "" || email == "" || password == ""){
+        return res.json({error: "Please Fill All The Blanks"})
+
+    }
+
+    User.find({name: name, email: email, password: password})
+    .then((user) => {
+        if (user.length != 0){
+            req.session.isLogin = true
+            req.session.username = name
+            req.session.email = email
+            req.session.password = password
+
+            return res.json({code: 200})
+
+        } else {
+            return res.json({error: "User Not Found"})
+            
+        }
+
+    })
+
+})
+
+app.post("/sign_up", (req, res) => {
+    const { name, email, password } = req.body
+
+    if (name == "" || email == "" || password == ""){
+        return res.json({error: "Please Fill All The Blanks"})
+
+    }
+
+    User.findOne({ $or: [{name: name}, {email: email}] })
+    .then(user => {
+        if (!user){
+            const newUser = new User({ name: name, email: email, password: password })
+            newUser.save()
+
+            req.session.isLogin = true
+            req.session.username = name
+            req.session.email = email
+            req.session.password = password
+            return res.json({code: 200})
+        
+
+        } else {
+            return res.json({error: "Name/Email already exists"})
+
+        }
+
+    })
+
+
 })
 
 app.get("/watch", (req, res) => {
@@ -98,7 +177,7 @@ app.get("/watch", (req, res) => {
             return res.redirect("/video_not_found")
 
         }else {
-            res.render("video.ejs", { id, likes: video.likes, dislikes: video.dislikes})
+            res.render("video.ejs", { id, likes: video.likes, dislikes: video.dislikes, isLogedIn: req.session.isLogin })
 
         }
     })
@@ -151,11 +230,21 @@ app.get("/video", (req, res) => {
 
 
 app.get("/upload", (req, res) => {
-    res.render("upload")
+    if (req.session.isLogin){
+        res.render("upload", { isLogedIn: req.session.isLogin })
+
+    }else{
+        res.redirect("/login")
+    }
 
 })
 
 app.post("/upload", files.array("files"), function (req, res) {
+    if (!req.session.isLogin){
+        return res.redirect("/login")
+
+    }
+
     const title = req.body.title
 
     if (title == "" || title == null) {
@@ -244,6 +333,10 @@ app.get("/video_not_found", (req, res) => {
 
 
 app.get("/like", (req, res) => {
+    if (!req.session.isLogin){
+        return res.json({redirectUrl: "/login"})
+
+    }
     const id = req.query.id
 
     async function update(){
@@ -266,6 +359,11 @@ app.get("/like", (req, res) => {
 
 
 app.get("/dislike", (req, res) => {
+    if (!req.session.isLogin){
+        return res.json({redirectUrl: "/login"})
+
+    }
+
     const id = req.query.id
 
     async function update(){
@@ -286,6 +384,17 @@ app.get("/dislike", (req, res) => {
 
 })
 
+app.get("/logout", (req, res) => {
+    req.session.destroy((error) => {
+        if (error){
+            console.log(error)
+            return false
+        }
+    })
+
+    res.redirect("/login")
+
+})
 
 // sample data
 // {

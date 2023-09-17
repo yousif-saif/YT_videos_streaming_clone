@@ -5,8 +5,8 @@ const videoSchema = new Schema({
     title: { type: String, required: true },
     videoFilePath: { type: String, required: true },
     thumbnailPath: { type: String, required: true },
-    likes: { type: Number, default: 0, required: false },
-    dislikes: { type: Number, default: 0, required: false },
+    likes: [{ type: String, ref: "User" }],
+    dislikes: [{ type: String, ref: "User" }],
     comments: { type: Array, default: [], required: false },
 
 

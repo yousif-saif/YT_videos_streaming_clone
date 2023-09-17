@@ -117,6 +117,7 @@ app.post("/login", (req, res) => {
     .then((user) => {
         if (user.length != 0){
             req.session.isLogin = true
+            req.session.userId = user[0]._id.toString()
             req.session.username = name
             req.session.email = email
             req.session.password = password
@@ -147,6 +148,7 @@ app.post("/sign_up", (req, res) => {
             newUser.save()
 
             req.session.isLogin = true
+            req.session.id = user._id.toString()
             req.session.username = name
             req.session.email = email
             req.session.password = password
@@ -177,7 +179,8 @@ app.get("/watch", (req, res) => {
             return res.redirect("/video_not_found")
 
         }else {
-            res.render("video.ejs", { id, likes: video.likes, dislikes: video.dislikes, isLogedIn: req.session.isLogin })
+            const userId = req.session.userId
+            res.render("video.ejs", { id, likes: video.likes.length, dislikes: video.dislikes.length, isLogedIn: req.session.isLogin, isliked: video.likes.includes(userId), isdisliked: video.dislikes.includes(userId) })
 
         }
     })
@@ -339,21 +342,38 @@ app.get("/like", (req, res) => {
     }
     const id = req.query.id
 
-    async function update(){
-        await Video.updateOne({ _id: id }, { $inc: {likes: 1} })
+    const userId = req.session.userId
 
-    }
+    Video.findById(id)
+    .then(video => {
+        if (video){       
+            if (!(video.likes.includes(userId)) && !(video.dislikes.includes(userId))){
+                video.likes.push(userId)
+                video.save()
+                return res.json({code: 200, likes: video.likes.length, dislikes: video.dislikes.length})
 
-    update()
-    .then(() => {
-        res.json({ code: 200 })
+            }
 
+            else if (!(video.likes.includes(userId)) && video.dislikes.includes(userId)){
+                video.likes.push(userId)
+                const userIndex = video.dislikes.indexOf(userId)
+                video.dislikes.splice(userIndex, 1)
+                video.save()
+                return res.json({ code: 409, likes: video.likes.length, dislikes: video.dislikes.length })
+
+            }
+
+            else if (video.likes.includes(userId)){
+                const userIndex = video.likes.indexOf(userId)
+                video.likes.splice(userIndex, 1)
+                video.save()
+                return res.json({ code: 400, likes: video.likes.length, dislikes: video.dislikes.length })
+            }
+            
+        } else {
+            res.json({ error: "video not found" })
+        }
     })
-    .catch(error => {
-        console.log(error)
-
-    })
-
 
 })
 
@@ -366,19 +386,38 @@ app.get("/dislike", (req, res) => {
 
     const id = req.query.id
 
-    async function update(){
-        await Video.updateOne({ _id: id }, { $inc: {dislikes: 1} })
+    const userId = req.session.userId
 
-    }
+    Video.findById(id)
+    .then(video => {
+        if (video){       
+            if (!(video.dislikes.includes(userId)) && !(video.likes.includes(userId))){
+                video.dislikes.push(userId)
+                video.save()
+                return res.json({ code: 200, dislikes: video.dislikes.length, likes: video.likes.length })
 
-    update()
-    .then(() => {
-        res.json({ code: 200 })
+            }
 
-    })
-    .catch(error => {
-        console.log(error)
+            else if (!(video.dislikes.includes(userId)) && video.likes.includes(userId)){
+                video.dislikes.push(userId)
+                const userIndex = video.likes.indexOf(userId)
+                video.likes.splice(userIndex, 1)
+                video.save()
+                return res.json({ code: 409, dislikes: video.dislikes.length, likes: video.likes.length })
 
+            }
+
+            else if (video.dislikes.includes(userId)){
+                const userIndex = video.dislikes.indexOf(userId)
+                video.dislikes.splice(userIndex, 1)
+                video.save()
+                return res.json({ code: 400, dislikes: video.dislikes.length, likes: video.likes.length })
+
+            }
+            
+        } else {
+            res.json({ error: "video not found" })
+        }
     })
 
 

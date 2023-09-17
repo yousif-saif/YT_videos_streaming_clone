@@ -22,12 +22,26 @@
     <div class="interactions">
         <input type="hidden" id="VideoId" value="<%= id %>">
         <div class="like">
-            <button id="like">Likes <%= likes %></button>
+            <% if (isliked) { %>
+                <button id="like" class="liked">Likes <%= likes %></button>
+
+            <% } else { %>
+                <button id="like">Likes <%= likes %></button>
+
+            <% } %>
+
+
 
         </div>
     
         <div class="dislike">
-            <button id="dislike">Dislike <%= dislikes %></button>
+            <% if (isdisliked) { %>
+                <button id="dislike" class="disliked">Dislike <%= dislikes %></button>
+
+            <% } else { %>
+                <button id="dislike">Dislikes <%= dislikes %></button>
+
+            <% } %>
 
         </div>
     

@@ -47,28 +47,36 @@
     
     </div>
     
+    <div class="text-center">
+        <h3 class="text-danger errorMsg"></h3>
+
+    </div>
+
+    <div class="text-center">
+        <h3 class="text-success successMsg"></h3>
+
+    </div>
+
     <div class="comments">
         <div class="comment">
-            <h3 class="name">yousifsaif</h3>
-            <h4 class="text">This Video Is Very Greate!!</h4>
-            
-        </div>
+            <input type="text" class="form-control" placeholder="Wrtie a comment..." id="comment">
+            <button class="btn btn-primary mt-2 addComment">Add Comment</button>
 
-        <div class="comment">
-            <h3 class="name">yousifsaif</h3>
-            <h4 class="text">This Video Is Very Greate!!</h4>
-            
         </div>
+        <% const commentsLength = comments.length %>
+        <% for (i in comments) { %>
+            <div class="comment">
+                <h3 class="name"><%= comments[commentsLength - i - 1].get("userName") %></h3>
+                <h4 class="text" style="margin-left: 10px;"><%= comments[commentsLength - i - 1].get("text") %></h4>
+                
+            </div>
 
-        <div class="comment">
-            <h3 class="name">yousifsaif</h3>
-            <h4 class="text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita exercitationem quidem distinctio eaque nisi laborum debitis quia sint in temporibus, ut rerum consequatur dolore quibusdam cumque voluptas veniam fugit repellat.</h4>
-            
-        </div>
+        <% } %>
+
         
     </div>
 
-    <script src="/js/like_and_dislike.js"></script>
+    <script src="/js/video.js"></script>
     
 
 </body>

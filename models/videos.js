@@ -7,7 +7,7 @@ const videoSchema = new Schema({
     thumbnailPath: { type: String, required: true },
     likes: [{ type: String, ref: "User" }],
     dislikes: [{ type: String, ref: "User" }],
-    comments: { type: Array, default: [], required: false },
+    comments: [{ type: Map, ref: "User" }],
 
 
 }, { timestamps: true })

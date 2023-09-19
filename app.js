@@ -148,7 +148,7 @@ app.post("/sign_up", (req, res) => {
             newUser.save()
 
             req.session.isLogin = true
-            req.session.id = user._id.toString()
+            req.session.id = newUser._id.toString()
             req.session.username = name
             req.session.email = email
             req.session.password = password
@@ -180,7 +180,7 @@ app.get("/watch", (req, res) => {
 
         }else {
             const userId = req.session.userId
-            res.render("video.ejs", { id, likes: video.likes.length, dislikes: video.dislikes.length, isLogedIn: req.session.isLogin, isliked: video.likes.includes(userId), isdisliked: video.dislikes.includes(userId) })
+            res.render("video.ejs", { id, likes: video.likes.length, dislikes: video.dislikes.length, isLogedIn: req.session.isLogin, isliked: video.likes.includes(userId), isdisliked: video.dislikes.includes(userId), comments: video.comments })
 
         }
     })
@@ -331,7 +331,7 @@ app.post("/upload", files.array("files"), function (req, res) {
 })
 
 app.get("/video_not_found", (req, res) => {
-    res.render("video_not_found.ejs")
+    res.render("video_not_found.ejs", { isLogedIn: req.session.isLogin })
 })
 
 
@@ -435,15 +435,28 @@ app.get("/logout", (req, res) => {
 
 })
 
-// sample data
-// {
-//     fieldname: 'files',
-//     originalname: 'Untitled Project.mp4',
-//     encoding: '7bit',
-//     mimetype: 'video/mp4',
-//     destination: 'C:\\Users\\msi\\Desktop\\express project/public/',
-//     filename: 'videos/Untitled Project.mp4',
-//     path: 'C:\\Users\\msi\\Desktop\\express project\\public\\videos\\Untitled Project.mp4',
-//     size: 25131139
-//   },
 
+app.post("/comment", (req, res) => {
+    if (!req.session.isLogin){
+        res.json({ urlRedirect: "/login" })
+        return false
+
+    }
+
+    const { comment, id } = req.body
+
+    if (comment == "" || comment == null){
+        res.json({ error: "invaild comment" })
+        return false
+
+    }
+
+    Video.findById(id)
+    .then(video => {
+        video.comments.push({ userName: req.session.username, text: comment })
+        video.save()
+        return res.json({ code: 200 })
+        
+    })
+
+})

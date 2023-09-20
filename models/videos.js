@@ -8,6 +8,7 @@ const videoSchema = new Schema({
     likes: [{ type: String, ref: "User" }],
     dislikes: [{ type: String, ref: "User" }],
     comments: [{ type: Map, ref: "User" }],
+    views: [{ type: String, ref: "User" }]
 
 
 }, { timestamps: true })

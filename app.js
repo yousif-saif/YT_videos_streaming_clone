@@ -1,14 +1,15 @@
+const fs = require("fs")
+const cors = require("cors")
+const multer = require("multer")
 const express = require("express")
 const mongoose = require("mongoose")
-const fs = require("fs")
-const app = express()
-const cors = require("cors")
-const Video = require("./models/videos")
 const User = require("./models/users")
-const multer = require("multer")
+const Video = require("./models/videos")
 const session = require("express-session")
 const { compressVideo, saveVideoToDatabase, updateFilesPaths } = require("./compress_video_with_ffmpeg")
 
+
+const app = express()
 const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
 
 mongoose.connect(dbURI)
@@ -100,7 +101,7 @@ app.get("/login", (req, res) => {
 })
 
 app.get("/sign_up", (req, res) => {
-    res.render("sign_up.ejs")
+    res.render("sign_up.ejs", { isLogedIn: req.session.isLogin })
     
 })
 
@@ -166,6 +167,11 @@ app.post("/sign_up", (req, res) => {
 })
 
 app.get("/watch", (req, res) => {
+    if (!req.session.isLogin){
+        res.redirect("/login")
+        return;
+    }
+
     const id = req.query.v
 
     if (id.length > 24 || id.length < 24){
@@ -180,6 +186,12 @@ app.get("/watch", (req, res) => {
 
         }else {
             const userId = req.session.userId
+            if (!(video.views.includes(userId))) {
+                video.views.push(userId)
+                video.save()
+
+            }
+
             res.render("video.ejs", { id, likes: video.likes.length, dislikes: video.dislikes.length, isLogedIn: req.session.isLogin, isliked: video.likes.includes(userId), isdisliked: video.dislikes.includes(userId), comments: video.comments })
 
         }

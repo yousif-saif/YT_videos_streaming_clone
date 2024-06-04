@@ -10,7 +10,7 @@ const { compressVideo, saveVideoToDatabase, updateFilesPaths } = require("./comp
 
 
 const app = express()
-const dbURI = "mongodb://127.0.0.1:27017/yt_clone"
+const dbURI = "YOUR mongoDB URI"
 
 mongoose.connect(dbURI)
 .then((results) => console.log("connected to MongoDB successfully!"))

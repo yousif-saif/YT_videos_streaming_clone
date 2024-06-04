@@ -21,7 +21,7 @@ mongoose.connect(dbURI)
 
 
 app.use(session({
-    secret: "fdjFDj235:fjrFSE756ksAgbvXsri08[-",
+    secret: "SESSION SECRET NUMBER",
     resave: false,
     saveUninitialized: true,
 }))

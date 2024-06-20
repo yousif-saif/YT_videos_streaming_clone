@@ -46,6 +46,18 @@
         </div>
     
     </div>
+
+
+    <% if (videoCreatorId === userId) { %>
+        <div class="text-center">
+            <button class="btn btn-primary">Edit</button>
+
+        </div>
+    
+    <% } %>
+
+
+    <h3>Views: <%= views %></h3>
     
     <div class="text-center">
         <h3 class="text-danger errorMsg"></h3>

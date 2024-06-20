@@ -1,5 +1,15 @@
-node_modules/
+/node_modules
+
+# Ignore everything in db/videos except .gitkeep
 db/videos/*
+!db/videos/.gitkeep
+
+# Ignore everything in db/images except .gitkeep
 db/images/*
+!db/images/.gitkeep
+
+# Ignore everything in db/temp except .gitkeep
 db/temp/*
+!db/temp/.gitkeep
+
 .env
